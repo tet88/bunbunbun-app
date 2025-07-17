@@ -2,147 +2,111 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>デジタルぶんぶんぶん</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --bee-yellow: #fdd835;
+      --bee-black: #333;
+      --bg: #fffef5;
+      --font: 'Segoe UI', sans-serif;
+    }
+
     body {
       margin: 0;
-      padding: 1rem;
-      background: #f5f5f5;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      color: #333;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      border-radius: 12px;
       padding: 2rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    h1, h2 {
-      text-align: center;
-      color: #fdd835;
-      font-weight: 700;
-      margin: 0 0 1rem;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--bee-black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     h1 {
-      font-size: clamp(1.5rem, 5vw, 2.4rem);
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      color: var(--bee-yellow);
+      margin-bottom: 1rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    .form {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
     .control {
-      position: relative;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .control label {
       display: block;
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
+      font-weight: bold;
     }
 
     .control input {
       width: 100%;
-      border: none;
-      border-bottom: 2px solid #ccc;
-      padding: 0.4rem 0;
+      padding: 0.4rem;
       font-size: 1rem;
-      transition: border-color 0.2s;
-      background: transparent;
-    }
-
-    .control input:focus {
-      outline: none;
-      border-bottom-color: #fdd835;
-    }
-
-    .person {
-      background: #fafafa;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-    }
-
-    .person .cols {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .person .cols .control {
-      flex: 1 1 45%;
-    }
-
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-      margin-bottom: 2rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
 
     button {
-      flex: 1 1 45%;
-      background: #fdd835;
+      background: var(--bee-yellow);
+      color: var(--bee-black);
       border: none;
-      border-radius: 24px;
-      padding: 0.6rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
       font-size: 1rem;
-      color: #333;
-      font-weight: 600;
       cursor: pointer;
-      transition: box-shadow 0.2s, background 0.2s;
-      min-width: 100px;
+      margin: 0.5rem 0;
     }
 
     button:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      background: #ffe54c;
+      opacity: 0.9;
     }
 
-    #results {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      font-size: 0.95rem;
-      color: #444;
+    .results {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
       white-space: pre-wrap;
-      min-height: 3rem;
+      background: #fffbe6;
+      padding: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ddd;
     }
 
-    @media (max-width: 480px) {
-      .person .cols {
-        flex-direction: column;
-      }
-      .buttons {
-        flex-direction: column;
-      }
-      h1 {
-        font-size: clamp(1.3rem, 6vw, 1.8rem);
-      }
+    .bee-icon {
+      font-size: 2rem;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>デジタルぶんぶんぶん 🐝</h1>
 
+  <h1>🐝 デジタルぶんぶんぶん</h1>
+
+  <div class="form">
     <div class="control">
-      <label for="arrivalTime">到着時刻（HH:MM:SS）</label>
-      <input type="text" id="arrivalTime" value="00:00:00" />
+      <label for="arrival1">1人目（最後に到着する人） 到着時刻（hh:mm:ss）</label>
+      <input type="time" step="1" id="arrival1" value="00:00:00" />
     </div>
 
     <div class="control">
-      <label for="delaySeconds">到着遅延（秒）</label>
-      <input type="number" id="delaySeconds" value="1" min="0" />
+      <label for="arrival2">2人目 到着時刻（hh:mm:ss）</label>
+      <input type="time" step="1" id="arrival2" value="00:00:00" />
+    </div>
+
+    <div class="control">
+      <label for="arrival3">3人目 到着時刻（hh:mm:ss）</label>
+      <input type="time" step="1" id="arrival3" value="00:00:00" />
     </div>
 
     <div class="control">
@@ -150,99 +114,65 @@
       <input type="text" id="prepTime" value="5:00" placeholder="例: 3:30" />
     </div>
 
-    <div id="peopleContainer">
-      <div class="person">
-        <div class="cols">
-          <div class="control">
-            <label>名前（最後に到着する人）</label>
-            <input type="text" class="name" placeholder="例: 太郎" />
-          </div>
-          <div class="control">
-            <label>所要時間（分：秒）</label>
-            <input type="text" class="duration" placeholder="例: 3:45" />
-          </div>
-        </div>
-      </div>
-    </div>
+    <button onclick="calculate()">計算する</button>
+    <button onclick="shareResults()">共有する</button>
 
-    <div class="buttons">
-      <button type="button" onclick="addPerson()">+ 追加</button>
-      <button type="button" onclick="calculate()">計算</button>
-    </div>
-
-    <h2>集結開始時刻</h2>
-    <div id="results"></div>
+    <div class="results" id="results"></div>
   </div>
 
   <script>
-    function addPerson() {
-      const c = document.getElementById('peopleContainer');
-      const div = document.createElement('div');
-      div.className = 'person';
-      div.innerHTML = `
-        <div class="cols">
-          <div class="control">
-            <label>名前</label>
-            <input type="text" class="name" placeholder="例: 花子" />
-          </div>
-          <div class="control">
-            <label>所要時間（分：秒）</label>
-            <input type="text" class="duration" placeholder="例: 2:30" />
-          </div>
-        </div>`;
-      c.appendChild(div);
+    function parseTime(str) {
+      const parts = str.split(':').map(Number);
+      if (parts.length !== 3) return NaN;
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
     }
 
     function parseMinutesSeconds(str) {
-      const p = str.split(':');
-      if (p.length !== 2) return NaN;
-      const m = parseInt(p[0], 10), s = parseInt(p[1], 10);
-      return (isNaN(m) || isNaN(s)) ? NaN : m * 60 + s;
+      const parts = str.split(':').map(Number);
+      if (parts.length !== 2) return NaN;
+      return parts[0] * 60 + parts[1];
     }
 
-    function formatTime(date) {
-      return [date.getHours(), date.getMinutes(), date.getSeconds()]
-        .map(n => String(n).padStart(2, '0')).join(':');
+    function formatTime(sec) {
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
     }
 
     function calculate() {
-      const timeStr = document.getElementById('arrivalTime').value.trim();
-      if (!/^(\d{1,2}):\d{2}:\d{2}$/.test(timeStr)) {
-        alert('到着時刻は「HH:MM:SS」の形式で入力してください');
-        return;
-      }
-
-      const arrivalParts = timeStr.split(':').map(Number);
-      const now = new Date();
-      const arrival = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...arrivalParts);
-
-      const delay = parseInt(document.getElementById('delaySeconds').value, 10);
-      const delaySec = isNaN(delay) ? 1 : Math.max(0, delay);
-
+      const t1 = parseTime(document.getElementById('arrival1').value);
+      const t2 = parseTime(document.getElementById('arrival2').value);
+      const t3 = parseTime(document.getElementById('arrival3').value);
       const prepStr = document.getElementById('prepTime').value.trim();
       const prepSec = parseMinutesSeconds(prepStr);
-      if (isNaN(prepSec)) {
-        alert('集結時間は「分:秒」の形式で入力してください（例: 5:00）');
+
+      if ([t1, t2, t3, prepSec].some(isNaN)) {
+        alert('正しい形式で入力してください（hh:mm:ss と 分:秒）');
         return;
       }
 
-      const result = [];
-      document.querySelectorAll('.person').forEach((el, i) => {
-        const name = el.querySelector('.name').value.trim();
-        const dur = el.querySelector('.duration').value.trim();
-        const durSec = parseMinutesSeconds(dur);
-        if (!name || isNaN(durSec)) return;
+      const maxArrival = Math.max(t1, t2, t3);
+      const startTime = maxArrival - prepSec;
+      const result = `🕒 集結開始時刻：${formatTime(startTime)}`;
+      document.getElementById('results').textContent = result;
+    }
 
-        const targetArrival = i === 0 ? arrival : new Date(arrival.getTime() - delaySec * 1000);
-        const departure = new Date(targetArrival.getTime() - durSec * 1000);
-        const prepStart = new Date(departure.getTime() - prepSec * 1000);
+    function shareResults() {
+      const text = document.getElementById('results').textContent.trim();
+      if (!text) {
+        alert("共有する結果がありません");
+        return;
+      }
 
-        result.push(`${name} → 集結開始時刻: ${formatTime(prepStart)}`);
-      });
-
-      document.getElementById('results').textContent = result.length
-        ? result.join('\n')
-        : '入力が不十分です';
+      if (navigator.share) {
+        navigator.share({
+          title: 'デジタルぶんぶんぶん',
+          text: text,
+        }).catch(err => console.error('共有失敗:', err));
+      } else {
+        alert("このブラウザは共有機能に対応していません");
+      }
     }
   </script>
 </body>
