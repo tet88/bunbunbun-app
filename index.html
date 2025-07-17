@@ -89,7 +89,7 @@
     }
 
     button {
-      flex: 1 1 45%;
+      flex: 1 1 30%;
       background: #fdd835;
       border: none;
       border-radius: 24px;
@@ -168,6 +168,8 @@
     <div class="buttons">
       <button type="button" onclick="addPerson()">+ 追加</button>
       <button type="button" onclick="calculate()">計算</button>
+      <button type="button" onclick="shareResult()">📤 共有</button>
+      <button type="button" onclick="copyResult()">📋 コピー</button>
     </div>
 
     <h2>集結開始時刻</h2>
@@ -243,6 +245,40 @@
       document.getElementById('results').textContent = result.length
         ? result.join('\n')
         : '入力が不十分です';
+    }
+
+    function shareResult() {
+      const text = document.getElementById('results').textContent.trim();
+      if (!text) {
+        alert("共有する内容がありません。先に『計算』してください。");
+        return;
+      }
+
+      if (navigator.share) {
+        navigator.share({
+          title: '集結開始時刻 - デジタルぶんぶんぶん',
+          text: text
+        }).catch((err) => {
+          console.error('共有に失敗:', err);
+        });
+      } else {
+        alert('このブラウザでは共有機能がサポートされていません');
+      }
+    }
+
+    function copyResult() {
+      const text = document.getElementById('results').textContent.trim();
+      if (!text) {
+        alert("コピーする内容がありません。先に『計算』してください。");
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("コピーしました！");
+      }).catch(err => {
+        console.error("コピー失敗:", err);
+        alert("コピーに失敗しました");
+      });
     }
   </script>
 </body>
