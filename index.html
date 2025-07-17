@@ -5,148 +5,173 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>デジタルぶんぶんぶん</title>
   <style>
+    :root {
+      --bee-yellow: #fdd835;
+      --bee-black: #333;
+      --bg: #fffef5;
+      --font: 'Segoe UI', sans-serif;
+    }
+
     body {
       margin: 0;
       padding: 2rem;
-      font-family: 'Segoe UI', sans-serif;
-      background: #fffbee;
-      color: #333;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--bee-black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     h1 {
-      text-align: center;
-      color: #ffcc00;
       font-size: clamp(1.5rem, 5vw, 2.5rem);
+      color: var(--bee-yellow);
+      margin-bottom: 1rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .bee-icon {
-      text-align: center;
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-    }
-
-    form {
+    .form {
+      width: 100%;
       max-width: 500px;
-      margin: 1rem auto;
-      background: #fffacd;
-      padding: 1.5rem;
-      border-radius: 1rem;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    label {
+    .control {
+      margin-bottom: 1rem;
+    }
+
+    .control label {
       display: block;
-      margin-top: 1rem;
+      margin-bottom: 0.25rem;
       font-weight: bold;
     }
 
-    input {
+    .control input {
       width: 100%;
-      padding: 0.4rem 0.6rem;
+      padding: 0.4rem;
       font-size: 1rem;
-      margin-top: 0.3rem;
       border: 1px solid #ccc;
-      border-radius: 0.5rem;
+      border-radius: 6px;
     }
 
     button {
-      margin-top: 1.5rem;
-      padding: 0.7rem 1.5rem;
-      background: #ffd700;
-      color: #000;
-      font-weight: bold;
+      background: var(--bee-yellow);
+      color: var(--bee-black);
       border: none;
-      border-radius: 1.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s ease;
+      margin: 0.5rem 0;
     }
 
     button:hover {
-      background: #ffcc00;
+      opacity: 0.9;
     }
 
-    #results {
-      margin-top: 2rem;
-      text-align: center;
-      font-size: 1.25rem;
-      font-weight: bold;
-      color: #222;
+    .results {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      white-space: pre-wrap;
+      background: #fffbe6;
+      padding: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ddd;
     }
 
-    .share {
-      text-align: center;
-      margin-top: 1rem;
-    }
-
-    .fade-in {
-      animation: fadeIn 0.6s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .bee-icon {
+      font-size: 2rem;
     }
   </style>
 </head>
 <body>
-  <div class="bee-icon">🐝</div>
-  <h1>デジタルぶんぶんぶん</h1>
 
-  <form onsubmit="event.preventDefault(); calculateStartTime();">
-    <label for="arrival">到着時刻（例: 00:00:00）</label>
-    <input type="time" id="arrival" step="1" value="00:00:00" required>
+  <h1>🐝 デジタルぶんぶんぶん</h1>
 
-    <label for="delay">到着までの秒数（例: 10）<br><small>一番強い（最後に到着する）人</small></label>
-    <input type="number" id="delay" value="10" min="0" required>
+  <div class="form">
+    <div class="control">
+      <label for="arrival1">1人目（最後に到着する人） 到着時刻（hh:mm:ss）</label>
+      <input type="time" step="1" id="arrival1" value="00:00:00" />
+    </div>
 
-    <label for="prep">集結時間（例: 5:00）</label>
-    <input type="time" id="prep" value="05:00" required>
+    <div class="control">
+      <label for="arrival2">2人目 到着時刻（hh:mm:ss）</label>
+      <input type="time" step="1" id="arrival2" value="00:00:00" />
+    </div>
 
-    <button type="submit">計算する</button>
-  </form>
+    <div class="control">
+      <label for="arrival3">3人目 到着時刻（hh:mm:ss）</label>
+      <input type="time" step="1" id="arrival3" value="00:00:00" />
+    </div>
 
-  <div id="results" class="fade-in"></div>
+    <div class="control">
+      <label for="prepTime">集結時間（分:秒）</label>
+      <input type="text" id="prepTime" value="5:00" placeholder="例: 3:30" />
+    </div>
 
-  <div class="share">
+    <button onclick="calculate()">計算する</button>
     <button onclick="shareResults()">共有する</button>
+
+    <div class="results" id="results"></div>
   </div>
 
   <script>
-    function calculateStartTime() {
-      const arrival = document.getElementById('arrival').value;
-      const delay = parseInt(document.getElementById('delay').value, 10);
-      const prep = document.getElementById('prep').value;
+    function parseTime(str) {
+      const parts = str.split(':').map(Number);
+      if (parts.length !== 3) return NaN;
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
 
-      const [h, m, s] = arrival.split(':').map(Number);
-      const arrivalDate = new Date();
-      arrivalDate.setHours(h, m, s);
+    function parseMinutesSeconds(str) {
+      const parts = str.split(':').map(Number);
+      if (parts.length !== 2) return NaN;
+      return parts[0] * 60 + parts[1];
+    }
 
-      const [ph, pm] = prep.split(':').map(Number);
-      const prepMs = ((ph * 60) + pm) * 60 * 1000;
+    function formatTime(sec) {
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
 
-      const resultDate = new Date(arrivalDate.getTime() - (delay * 1000) - prepMs);
+    function calculate() {
+      const t1 = parseTime(document.getElementById('arrival1').value);
+      const t2 = parseTime(document.getElementById('arrival2').value);
+      const t3 = parseTime(document.getElementById('arrival3').value);
+      const prepStr = document.getElementById('prepTime').value.trim();
+      const prepSec = parseMinutesSeconds(prepStr);
 
-      const pad = n => String(n).padStart(2, '0');
-      const timeString = `${pad(resultDate.getHours())}:${pad(resultDate.getMinutes())}:${pad(resultDate.getSeconds())}`;
+      if ([t1, t2, t3, prepSec].some(isNaN)) {
+        alert('正しい形式で入力してください（hh:mm:ss と 分:秒）');
+        return;
+      }
 
-      document.getElementById('results').textContent = `集結開始時刻：${timeString}`;
+      const maxArrival = Math.max(t1, t2, t3);
+      const startTime = maxArrival - prepSec;
+      const result = `🕒 集結開始時刻：${formatTime(startTime)}`;
+      document.getElementById('results').textContent = result;
     }
 
     function shareResults() {
       const text = document.getElementById('results').textContent.trim();
-      if (!text) return alert("結果がありません");
+      if (!text) {
+        alert("共有する結果がありません");
+        return;
+      }
 
       if (navigator.share) {
-        navigator.share({ title: '集結時刻', text }).catch(console.error);
-      } else if (navigator.clipboard) {
-        navigator.clipboard.writeText(text)
-          .then(() => alert("結果をコピーしました。Discordなどに貼り付けてください。"))
-          .catch(err => alert("コピーに失敗しました: " + err));
+        navigator.share({
+          title: 'デジタルぶんぶんぶん',
+          text: text,
+        }).catch(err => console.error('共有失敗:', err));
       } else {
-        alert("共有もコピーもサポートされていません");
+        alert("このブラウザは共有機能に対応していません");
       }
     }
   </script>
