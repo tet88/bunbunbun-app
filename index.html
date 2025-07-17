@@ -1,174 +1,152 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>デジタルぶんぶんぶん</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    :root {
-      --bee-yellow: #fdd835;
-      --bee-black: #333;
-      --bee-light: #fffbe6;
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0; padding: 2rem;
-      font-family: 'Segoe UI',sans-serif;
-      background: var(--bee-light);
-      color: var(--bee-black);
-      display: flex; justify-content: center;
+      margin: 0;
+      padding: 2rem;
+      font-family: 'Segoe UI', sans-serif;
+      background: #fffbee;
+      color: #333;
     }
-    .app {
-      max-width: 480px;
-      width: 100%;
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+
     h1 {
-      font-size: clamp(1.5rem,5vw,2.4rem);
-      color: var(--bee-yellow);
       text-align: center;
+      color: #ffcc00;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 1.5rem;
     }
-    .control {
-      margin-bottom: 1rem;
+
+    .bee-icon {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
     }
-    .control label {
+
+    form {
+      max-width: 500px;
+      margin: 1rem auto;
+      background: #fffacd;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    label {
       display: block;
+      margin-top: 1rem;
       font-weight: bold;
-      margin-bottom: .3rem;
     }
-    .control input {
+
+    input {
       width: 100%;
-      padding: .6rem;
+      padding: 0.4rem 0.6rem;
       font-size: 1rem;
+      margin-top: 0.3rem;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      transition: border-color .2s, box-shadow .2s;
+      border-radius: 0.5rem;
     }
-    .control input:focus {
-      border-color: var(--bee-yellow);
-      box-shadow: 0 0 6px rgba(253,216,53,0.4);
-      outline: none;
-    }
-    .btn {
-      display: inline-block;
-      padding: .7rem 1.6rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      background: var(--bee-yellow);
-      color: var(--bee-black);
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: transform .2s, box-shadow .2s;
-      margin-right: .5rem;
-      margin-top: .5rem;
-    }
-    .btn:first-of-type { margin-left: 0; }
-    .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    }
-    .btn::after {
-      content: "🐝";
-      position: absolute;
-      right: 12px;
-      opacity: 0;
-      transform: translateX(-5px);
-      transition: opacity .3s, transform .3s;
-    }
-    .btn:hover::after {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    .results {
+
+    button {
       margin-top: 1.5rem;
-      padding: 1rem;
-      background: var(--bee-light);
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 1.1rem;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity .5s, transform .5s;
+      padding: 0.7rem 1.5rem;
+      background: #ffd700;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 1.5rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
     }
-    .results.show {
-      opacity: 1;
-      transform: translateY(0);
+
+    button:hover {
+      background: #ffcc00;
+    }
+
+    #results {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .share {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <h1>デジタルぶんぶんぶん</h1>
+  <div class="bee-icon">🐝</div>
+  <h1>デジタルぶんぶんぶん</h1>
 
-    <div class="control">
-      <label for="arrival1">1人目 到着時刻（hh:mm:ss）</label>
-      <input type="time" step="1" id="arrival1" value="00:00:00">
-    </div>
-    <div class="control">
-      <label for="arrival2">2人目 到着時刻（hh:mm:ss）</label>
-      <input type="time" step="1" id="arrival2" value="00:00:00">
-    </div>
-    <div class="control">
-      <label for="arrival3">3人目 到着時刻（hh:mm:ss）</label>
-      <input type="time" step="1" id="arrival3" value="00:00:00">
-    </div>
-    <div class="control">
-      <label for="prepTime">集結時間（分:秒）</label>
-      <input type="text" id="prepTime" value="5:00" placeholder="例: 3:30">
-    </div>
+  <form onsubmit="event.preventDefault(); calculateStartTime();">
+    <label for="arrival">到着時刻（例: 00:00:00）</label>
+    <input type="time" id="arrival" step="1" value="00:00:00" required>
 
-    <button class="btn" onclick="calculate()">計算</button>
-    <button class="btn" onclick="shareResults()">共有</button>
+    <label for="delay">到着までの秒数（例: 10）<br><small>一番強い（最後に到着する）人</small></label>
+    <input type="number" id="delay" value="10" min="0" required>
 
-    <div id="results" class="results"></div>
+    <label for="prep">集結時間（例: 5:00）</label>
+    <input type="time" id="prep" value="05:00" required>
+
+    <button type="submit">計算する</button>
+  </form>
+
+  <div id="results" class="fade-in"></div>
+
+  <div class="share">
+    <button onclick="shareResults()">共有する</button>
   </div>
 
   <script>
-    function parseTime(s) {
-      const p = s.split(':').map(Number);
-      return p.length===3 && !p.some(isNaN) ? p[0]*3600 + p[1]*60 + p[2] : NaN;
+    function calculateStartTime() {
+      const arrival = document.getElementById('arrival').value;
+      const delay = parseInt(document.getElementById('delay').value, 10);
+      const prep = document.getElementById('prep').value;
+
+      const [h, m, s] = arrival.split(':').map(Number);
+      const arrivalDate = new Date();
+      arrivalDate.setHours(h, m, s);
+
+      const [ph, pm] = prep.split(':').map(Number);
+      const prepMs = ((ph * 60) + pm) * 60 * 1000;
+
+      const resultDate = new Date(arrivalDate.getTime() - (delay * 1000) - prepMs);
+
+      const pad = n => String(n).padStart(2, '0');
+      const timeString = `${pad(resultDate.getHours())}:${pad(resultDate.getMinutes())}:${pad(resultDate.getSeconds())}`;
+
+      document.getElementById('results').textContent = `集結開始時刻：${timeString}`;
     }
-    function parseMS(s) {
-      const p = s.split(':').map(Number);
-      return p.length===2 && !p.some(isNaN) ? p[0]*60 + p[1] : NaN;
-    }
-    function fmtTime(sec) {
-      const h = String(Math.floor(sec/3600)).padStart(2,'0'),
-            m = String(Math.floor(sec%3600/60)).padStart(2,'0'),
-            s = String(sec%60).padStart(2,'0');
-      return `${h}:${m}:${s}`;
-    }
-    function calculate() {
-      const ts = [1,2,3].map(i => parseTime(document.getElementById('arrival'+i).value));
-      const prep = parseMS(document.getElementById('prepTime').value.trim());
-      if (ts.some(isNaN) || isNaN(prep)) {
-        alert('正しい形式で入力してください');
-        return;
-      }
-      const target = Math.max(...ts);
-      const start = target - prep;
-      const text = `🕒 集結開始時刻：${fmtTime(start)}`;
-      const el = document.getElementById('results');
-      el.textContent = text;
-      el.classList.add('show');
-    }
+
     function shareResults() {
       const text = document.getElementById('results').textContent.trim();
       if (!text) return alert("結果がありません");
+
       if (navigator.share) {
         navigator.share({ title: '集結時刻', text }).catch(console.error);
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+          .then(() => alert("結果をコピーしました。Discordなどに貼り付けてください。"))
+          .catch(err => alert("コピーに失敗しました: " + err));
       } else {
-        alert("共有に対応していません");
+        alert("共有もコピーもサポートされていません");
       }
     }
   </script>
