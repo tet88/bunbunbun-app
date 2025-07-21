@@ -107,6 +107,16 @@
       background: #ffe54c;
     }
 
+    /* 計算ボタン専用スタイル */
+    #calcBtn {
+      background: #333;
+      color: #fdd835;
+    }
+
+    #calcBtn:hover {
+      background: #444;
+    }
+
     #results {
       background: #fff;
       padding: 1rem;
@@ -174,7 +184,7 @@
 
     <div class="buttons">
       <button type="button" onclick="addPerson()">+ 追加</button>
-      <button type="button" onclick="calculate()">計算</button>
+      <button type="button" id="calcBtn" onclick="calculate()">計算</button>
       <button type="button" onclick="shareResult()">📤 共有</button>
       <button type="button" onclick="copyResult()">📋 コピー</button>
     </div>
@@ -216,69 +226,68 @@
     }
 
     function calculate() {
-  const timeStr = document.getElementById('arrivalTime').value.trim();
-  if (!/^(\d{1,2}):\d{2}:\d{2}$/.test(timeStr)) {
-    alert('到着時刻は「HH:MM:SS」の形式で入力してください');
-    return;
-  }
+      const timeStr = document.getElementById('arrivalTime').value.trim();
+      if (!/^(\d{1,2}):\d{2}:\d{2}$/.test(timeStr)) {
+        alert('到着時刻は「HH:MM:SS」の形式で入力してください');
+        return;
+      }
 
-  const arrivalParts = timeStr.split(':').map(Number);
-  const now = new Date();
+      const arrivalParts = timeStr.split(':').map(Number);
+      const now = new Date();
 
-  // 到着時刻（日を跨ぐ場合対応）
-  let arrival = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...arrivalParts);
-  if (arrival < now) {
-    arrival.setDate(arrival.getDate() + 1); // 翌日に補正
-  }
+      let arrival = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...arrivalParts);
+      if (arrival < now) {
+        arrival.setDate(arrival.getDate() + 1);
+      }
 
-  const delay = parseInt(document.getElementById('delaySeconds').value, 10);
-  const delaySec = isNaN(delay) ? 1 : Math.max(0, delay);
+      const delay = parseInt(document.getElementById('delaySeconds').value, 10);
+      const delaySec = isNaN(delay) ? 1 : Math.max(0, delay);
 
-  const prepStr = document.getElementById('prepTime').value.trim();
-  const prepSec = parseMinutesSeconds(prepStr);
-  if (isNaN(prepSec)) {
-    alert('集結時間は「分:秒」の形式で入力してください（例: 5:00）');
-    return;
-  }
+      const prepStr = document.getElementById('prepTime').value.trim();
+      const prepSec = parseMinutesSeconds(prepStr);
+      if (isNaN(prepSec)) {
+        alert('集結時間は「分:秒」の形式で入力してください（例: 5:00）');
+        return;
+      }
 
-  const result = [];
-  let earliestPrepStart = null;
+      const result = [];
+      let earliestPrepStart = null;
 
-  document.querySelectorAll('.person').forEach((el, i) => {
-    const name = el.querySelector('.name').value.trim();
-    const dur = el.querySelector('.duration').value.trim();
-    const durSec = parseMinutesSeconds(dur);
-    if (!name || isNaN(durSec)) return;
+      document.querySelectorAll('.person').forEach((el, i) => {
+        const name = el.querySelector('.name').value.trim();
+        const dur = el.querySelector('.duration').value.trim();
+        const durSec = parseMinutesSeconds(dur);
+        if (!name || isNaN(durSec)) return;
 
-    const targetArrival = i === 0 ? arrival : new Date(arrival.getTime() - delaySec * 1000);
-    const departure = new Date(targetArrival.getTime() - durSec * 1000);
-    const prepStart = new Date(departure.getTime() - prepSec * 1000);
+        const targetArrival = i === 0 ? arrival : new Date(arrival.getTime() - delaySec * 1000);
+        const departure = new Date(targetArrival.getTime() - durSec * 1000);
+        const prepStart = new Date(departure.getTime() - prepSec * 1000);
 
-    if (!earliestPrepStart || prepStart < earliestPrepStart) {
-      earliestPrepStart = prepStart;
+        if (!earliestPrepStart || prepStart < earliestPrepStart) {
+          earliestPrepStart = prepStart;
+        }
+
+        result.push(`${name} → 集結開始時刻: ${formatTime(prepStart)}`);
+      });
+
+      const resultArea = document.getElementById('results');
+      const warningArea = document.getElementById('warningMessage');
+      warningArea.textContent = '';
+
+      if (result.length) {
+        resultArea.textContent = result.join('\n');
+
+        const nowPlusOneMinute = new Date(now.getTime() + 60 * 1000);
+
+        if (earliestPrepStart && earliestPrepStart < now) {
+          warningArea.textContent = '⚠️ 現在時刻よりも前の時刻です';
+        } else if (earliestPrepStart < nowPlusOneMinute) {
+          warningArea.textContent = '⚠️ 集結まで1分未満です';
+        }
+      } else {
+        resultArea.textContent = '入力が不十分です';
+      }
     }
-
-    result.push(`${name} → 集結開始時刻: ${formatTime(prepStart)}`);
-  });
-
-  const resultArea = document.getElementById('results');
-  const warningArea = document.getElementById('warningMessage');
-  warningArea.textContent = '';
-
-  if (result.length) {
-    resultArea.textContent = result.join('\n');
-
-    const nowPlusOneMinute = new Date(now.getTime() + 60 * 1000);
-
-    if (earliestPrepStart && earliestPrepStart < now) {
-      warningArea.textContent = '⚠️ 現在時刻よりも前の時刻です';
-    } else if (earliestPrepStart < nowPlusOneMinute) {
-      warningArea.textContent = '⚠️ 集結まで1分未満です';
-    }
-  } else {
-    resultArea.textContent = '入力が不十分です';
-  }
-}
 
     function shareResult() {
       const text = document.getElementById('results').textContent.trim();
