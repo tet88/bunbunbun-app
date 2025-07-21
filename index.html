@@ -118,6 +118,13 @@
       min-height: 3rem;
     }
 
+    #warningMessage {
+      color: #d32f2f;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
     @media (max-width: 480px) {
       .person .cols {
         flex-direction: column;
@@ -173,6 +180,7 @@
     </div>
 
     <h2>集結開始時刻</h2>
+    <div id="warningMessage"></div>
     <div id="results"></div>
   </div>
 
@@ -229,6 +237,8 @@
       }
 
       const result = [];
+      let earliestPrepStart = null;
+
       document.querySelectorAll('.person').forEach((el, i) => {
         const name = el.querySelector('.name').value.trim();
         const dur = el.querySelector('.duration').value.trim();
@@ -239,12 +249,27 @@
         const departure = new Date(targetArrival.getTime() - durSec * 1000);
         const prepStart = new Date(departure.getTime() - prepSec * 1000);
 
+        if (!earliestPrepStart || prepStart < earliestPrepStart) {
+          earliestPrepStart = prepStart;
+        }
+
         result.push(`${name} → 集結開始時刻: ${formatTime(prepStart)}`);
       });
 
-      document.getElementById('results').textContent = result.length
-        ? result.join('\n')
-        : '入力が不十分です';
+      const resultArea = document.getElementById('results');
+      const warningArea = document.getElementById('warningMessage');
+      warningArea.textContent = '';
+
+      if (result.length) {
+        resultArea.textContent = result.join('\n');
+
+        const nowPlusOneMinute = new Date(Date.now() + 60 * 1000);
+        if (earliestPrepStart && earliestPrepStart < nowPlusOneMinute) {
+          warningArea.textContent = '⚠️ 集結まで1分未満です';
+        }
+      } else {
+        resultArea.textContent = '入力が不十分です';
+      }
     }
 
     function shareResult() {
