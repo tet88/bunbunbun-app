@@ -2,179 +2,310 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>集結開始時刻 計算ツール</title>
+  <title>デジタルぶんぶんぶん</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: sans-serif;
-      padding: 2rem;
-      background: #f9f9f9;
-    }
-
-    h1, h2 {
+      margin: 0;
+      padding: 1rem;
+      background: #f5f5f5;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
       color: #333;
     }
 
-    .person {
-      margin-bottom: 1rem;
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    input[type="text"],
-    input[type="number"] {
-      width: 10em;
-      padding: 0.4em;
+    h1, h2 {
+      text-align: center;
+      color: #fdd835;
+      font-weight: 700;
+      margin: 0 0 1rem;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 5vw, 2.4rem);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .control {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .control label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .control input {
+      width: 100%;
+      border: none;
+      border-bottom: 2px solid #ccc;
+      padding: 0.4rem 0;
       font-size: 1rem;
-      margin-right: 0.5em;
+      transition: border-color 0.2s;
+      background: transparent;
+    }
+
+    .control input:focus {
+      outline: none;
+      border-bottom-color: #fdd835;
+    }
+
+    .person {
+      background: #fafafa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .person .cols {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .person .cols .control {
+      flex: 1 1 45%;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
     }
 
     button {
+      flex: 1 1 30%;
+      background: #fdd835;
+      border: none;
+      border-radius: 24px;
+      padding: 0.6rem;
       font-size: 1rem;
-      padding: 0.5em 1em;
-      margin-top: 1rem;
+      color: #333;
+      font-weight: 600;
       cursor: pointer;
+      transition: box-shadow 0.2s, background 0.2s;
+      min-width: 100px;
+    }
+
+    button:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background: #ffe54c;
     }
 
     #results {
-      white-space: pre-line;
       background: #fff;
       padding: 1rem;
-      border-radius: 0.5rem;
-      margin-top: 1rem;
-      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      font-size: 0.95rem;
+      color: #444;
+      white-space: pre-wrap;
+      min-height: 3rem;
     }
 
     #warningMessage {
       color: #d32f2f;
       font-weight: bold;
-      margin-top: 1rem;
+      margin-bottom: 1rem;
       text-align: center;
     }
 
-    .copy-button {
-      margin-top: 1rem;
-      padding: 0.4rem 1rem;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.9rem;
+    @media (max-width: 480px) {
+      .person .cols {
+        flex-direction: column;
+      }
+      .buttons {
+        flex-direction: column;
+      }
+      h1 {
+        font-size: clamp(1.3rem, 6vw, 1.8rem);
+      }
     }
   </style>
 </head>
 <body>
-  <h1>集結開始時刻計算ツール</h1>
+  <div class="container">
+    <h1>デジタルぶんぶんぶん 🐝</h1>
 
-  <div>
-    到着時刻（例: 12:34:56）:
-    <input id="arrivalTime" type="text" placeholder="HH:MM:SS" />
+    <div class="control">
+      <label for="arrivalTime">到着時刻（HH:MM:SS）</label>
+      <input type="text" id="arrivalTime" value="00:00:00" />
+    </div>
+
+    <div class="control">
+      <label for="delaySeconds">到着遅延（秒）</label>
+      <input type="number" id="delaySeconds" value="1" min="0" />
+    </div>
+
+    <div class="control">
+      <label for="prepTime">集結時間（分:秒）</label>
+      <input type="text" id="prepTime" value="5:00" placeholder="例: 3:30" />
+    </div>
+
+    <div id="peopleContainer">
+      <div class="person">
+        <div class="cols">
+          <div class="control">
+            <label>名前（最後に到着する人）</label>
+            <input type="text" class="name" placeholder="例: 太郎" />
+          </div>
+          <div class="control">
+            <label>所要時間（分：秒）</label>
+            <input type="text" class="duration" placeholder="例: 3:45" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" onclick="addPerson()">+ 追加</button>
+      <button type="button" onclick="calculate()">計算</button>
+      <button type="button" onclick="shareResult()">📤 共有</button>
+      <button type="button" onclick="copyResult()">📋 コピー</button>
+    </div>
+
+    <h2>集結開始時刻</h2>
+    <div id="warningMessage"></div>
+    <div id="results"></div>
   </div>
-
-  <div>
-    遅れ（秒）:
-    <input id="delaySeconds" type="number" value="1" />
-  </div>
-
-  <div>
-    集結時間（分:秒）:
-    <input id="prepTime" type="text" value="5:00" />
-  </div>
-
-  <h2>メンバー</h2>
-
-  <div class="person">
-    <input class="name" type="text" placeholder="名前" />
-    <input class="duration" type="text" placeholder="所要時間（分:秒）" />
-  </div>
-  <div class="person">
-    <input class="name" type="text" placeholder="名前" />
-    <input class="duration" type="text" placeholder="所要時間（分:秒）" />
-  </div>
-  <div class="person">
-    <input class="name" type="text" placeholder="名前" />
-    <input class="duration" type="text" placeholder="所要時間（分:秒）" />
-  </div>
-
-  <button onclick="calculate()">計算</button>
-
-  <div id="warningMessage"></div>
-  <div id="results"></div>
-  <button class="copy-button" onclick="copyResults()">コピー</button>
 
   <script>
+    function addPerson() {
+      const c = document.getElementById('peopleContainer');
+      const div = document.createElement('div');
+      div.className = 'person';
+      div.innerHTML = `
+        <div class="cols">
+          <div class="control">
+            <label>名前</label>
+            <input type="text" class="name" placeholder="例: 花子" />
+          </div>
+          <div class="control">
+            <label>所要時間（分：秒）</label>
+            <input type="text" class="duration" placeholder="例: 2:30" />
+          </div>
+        </div>`;
+      c.appendChild(div);
+    }
+
     function parseMinutesSeconds(str) {
-      const [min, sec] = str.split(':').map(Number);
-      if (isNaN(min) || isNaN(sec)) return NaN;
-      return min * 60 + sec;
+      const p = str.split(':');
+      if (p.length !== 2) return NaN;
+      const m = parseInt(p[0], 10), s = parseInt(p[1], 10);
+      return (isNaN(m) || isNaN(s)) ? NaN : m * 60 + s;
     }
 
     function formatTime(date) {
-      return date.toTimeString().split(' ')[0];
+      return [date.getHours(), date.getMinutes(), date.getSeconds()]
+        .map(n => String(n).padStart(2, '0')).join(':');
     }
 
     function calculate() {
-      const arrivalStr = document.getElementById('arrivalTime').value.trim();
-      const arrivalParts = arrivalStr.split(':').map(Number);
-      if (arrivalParts.length !== 3) {
+      const timeStr = document.getElementById('arrivalTime').value.trim();
+      if (!/^(\d{1,2}):\d{2}:\d{2}$/.test(timeStr)) {
         alert('到着時刻は「HH:MM:SS」の形式で入力してください');
-        return;
+      return;
       }
 
+      const arrivalParts = timeStr.split(':').map(Number);
       const now = new Date();
       const arrival = new Date(now.getFullYear(), now.getMonth(), now.getDate(), ...arrivalParts);
-      const delay = parseInt(document.getElementById('delaySeconds').value, 10) || 1;
+
+      const delay = parseInt(document.getElementById('delaySeconds').value, 10);
+      const delaySec = isNaN(delay) ? 1 : Math.max(0, delay);
+
       const prepStr = document.getElementById('prepTime').value.trim();
       const prepSec = parseMinutesSeconds(prepStr);
       if (isNaN(prepSec)) {
         alert('集結時間は「分:秒」の形式で入力してください（例: 5:00）');
-        return;
+      return;
       }
 
-      const results = [];
+      const result = [];
       let earliestPrepStart = null;
 
-      const people = document.querySelectorAll('.person');
+      document.querySelectorAll('.person').forEach((el, i) => {
+      const name = el.querySelector('.name').value.trim();
+      const dur = el.querySelector('.duration').value.trim();
+      const durSec = parseMinutesSeconds(dur);
+      if (!name || isNaN(durSec)) return;
 
-      people.forEach((el, i) => {
-        const name = el.querySelector('.name').value.trim();
-        const durStr = el.querySelector('.duration').value.trim();
-        const durSec = parseMinutesSeconds(durStr);
-        if (!name || isNaN(durSec)) return;
+      const targetArrival = i === 0 ? arrival : new Date(arrival.getTime() - delaySec * 1000);
+      const departure = new Date(targetArrival.getTime() - durSec * 1000);
+      const prepStart = new Date(departure.getTime() - prepSec * 1000);
 
-        const targetArrival = i === 0 ? arrival : new Date(arrival.getTime() - delay * 1000);
-        const departure = new Date(targetArrival.getTime() - durSec * 1000);
-        const prepStart = new Date(departure.getTime() - prepSec * 1000);
+      if (!earliestPrepStart || prepStart < earliestPrepStart) {
+        earliestPrepStart = prepStart;
+      }
 
-        if (!earliestPrepStart || prepStart < earliestPrepStart) {
-          earliestPrepStart = prepStart;
-        }
-
-        results.push(`${name} → 集結開始時刻: ${formatTime(prepStart)}`);
+      result.push(`${name} → 集結開始時刻: ${formatTime(prepStart)}`);
       });
 
-      const resultsBox = document.getElementById('results');
-      const messageBox = document.getElementById('warningMessage');
-      resultsBox.textContent = '';
-      messageBox.textContent = '';
+      const resultArea = document.getElementById('results');
+      const warningArea = document.getElementById('warningMessage');
+      warningArea.textContent = '';
 
-      if (results.length > 0) {
-        resultsBox.textContent = results.join('\n');
+      if (result.length) {
+        resultArea.textContent = result.join('\n');
 
-        const nowTime = new Date();
-        if (earliestPrepStart < nowTime) {
-          messageBox.textContent = '⚠️ 現在時刻よりも前の時刻です';
-        } else if (earliestPrepStart - nowTime < 60 * 1000) {
-          messageBox.textContent = '⚠️ 集結まで1分未満です';
+        const nowPlusOneMinute = new Date(now.getTime() + 60 * 1000);
+
+          if (earliestPrepStart && earliestPrepStart < now) {
+        warningArea.textContent = '⚠️ 現在時刻よりも前の時刻です';
+        } else if (earliestPrepStart < nowPlusOneMinute) {
+        warningArea.textContent = '⚠️ 集結まで1分未満です';
         }
       } else {
-        resultsBox.textContent = '名前と所要時間をすべて入力してください';
+    resultArea.textContent = '入力が不十分です';
       }
     }
 
-    function copyResults() {
-      const resultsText = document.getElementById('results').textContent;
-      if (!resultsText.trim()) return;
-      navigator.clipboard.writeText(resultsText).then(() => {
-        alert('コピーしました');
+    function shareResult() {
+      const text = document.getElementById('results').textContent.trim();
+      if (!text) {
+        alert("共有する内容がありません。先に『計算』してください。");
+        return;
+      }
+
+      if (navigator.share) {
+        navigator.share({
+          title: '集結開始時刻 - デジタルぶんぶんぶん',
+          text: text
+        }).catch((err) => {
+          console.error('共有に失敗:', err);
+        });
+      } else {
+        alert('このブラウザでは共有機能がサポートされていません');
+      }
+    }
+
+    function copyResult() {
+      const text = document.getElementById('results').textContent.trim();
+      if (!text) {
+        alert("コピーする内容がありません。先に『計算』してください。");
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert("コピーしました！");
+      }).catch(err => {
+        console.error("コピー失敗:", err);
+        alert("コピーに失敗しました");
       });
     }
   </script>
